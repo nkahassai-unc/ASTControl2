@@ -1,0 +1,263 @@
+/* === Global Layout === */
+body {
+    font-family: Arial, sans-serif;
+    background: #e4e4e4;
+    color: #222;
+    padding: 20px;
+    margin: 0;
+  }
+  
+  .container {
+    display: grid;
+    grid-template-areas:
+      "banner banner banner banner"
+      "camera1 camera1 camera2 camera2"
+      "mount calculations peripherals peripherals"
+      "server server file file"
+      "server server file file";
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  
+  .card {
+    background: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .card h3 {
+    margin: 0;
+    font-size: 18px;
+  }
+  
+  /* === Grid Coloring === */
+  .banner            { grid-area: banner; }
+  .server-control    { grid-area: server; background: #fcb5b5; }
+  .calculations      { grid-area: calculations; background: #ffe294; }
+  .mount-control     { grid-area: mount; background: #ddcfff; }
+  .peripheral-control{ grid-area: peripherals; background: #ade4fa; }
+  .file-status       { grid-area: file; background: #ddcfff; }
+  .science-cam       { grid-area: camera1; background: #d0d0d0; }
+  .dome-cam          { grid-area: camera2; background: #d0d0d0; }
+  
+  .banner img {
+    max-width: 600px;
+    height: auto;
+  }
+  
+  /* === Camera Feeds === */
+  iframe, img.cam-stream {
+    width: 100%;
+    height: 500px;
+    border-radius: 4px;
+    border: 2px solid #555;
+    object-fit: cover;
+  }
+  
+  /* === Buttons === */
+  button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 5px;
+    background: #686e75;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+  
+  button:hover {
+    background: #b0b4b8;
+    transform: scale(1.05);
+  }
+  
+  button.stop {
+    background: #da325f;
+    font-weight: bold;
+  }
+  
+  button.stop:hover {
+    background: #cf0c39;
+  }
+  
+  /* === Inputs === */
+  input[type="number"],
+  input[type="range"],
+  select {
+    font-size: 14px;
+    border-radius: 5px;
+  }
+  
+  input[type="number"] {
+    padding: 5px;
+    border: 1px solid #aaa;
+    width: 60px;
+    text-align: center;
+  }
+  
+  input[type="range"] {
+    flex: 1;
+  }
+  
+  select {
+    padding: 5px 10px;
+    border: 1px solid #aaa;
+    background: #f5f5f5;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+  
+  select:hover {
+    background: #e0e0e0;
+    border-color: #888;
+  }
+  
+  /* === Shared Flex Layouts === */
+  .button-group,
+  .dome-control-row,
+  .etalon-control-row,
+  .nstep-control-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 4px;
+  }
+  
+  /* === Log Terminal === */
+  .log-output {
+    max-height: 350px;
+    overflow-y: auto;
+    background: #f8f8f8;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 13px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  /* === Solar & Weather === */
+  .calculations h4 {
+    font-size: 16px;
+    color: #333;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+  }
+  
+  .row {
+    display: flex;
+    gap: 10px;
+    font-size: 14px;
+    margin: 4px 0;
+  }
+  
+  .row span { min-width: 60px; color: #555; }
+  .row strong { color: #000; }
+  
+  /* === Mount Control === */
+  .mount-control {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  /* Coordinate Display Row */
+  .coord-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #f5f5f5;
+  }
+  
+  .coord-row p {
+    margin: 0;
+    font-weight: normal;
+  }
+  
+  .coord-row strong {
+    font-weight: bold;
+  }
+  
+  /* Slew Rate */
+  .mount-control select {
+    padding: 6px 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #aaa;
+    background-color: #fff;
+    width: fit-content;
+  }
+  
+  /* D-Pad with extra margin */
+  .dpad {
+    display: grid;
+    grid-template-columns: repeat(3, 50px);
+    grid-template-rows: repeat(3, 50px);
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px; /* ⬅ Pushes D-Pad lower */
+  }
+  
+  .dpad button {
+    width: 100%;
+    height: 100%;
+    font-weight: bold;
+    font-size: 12px;
+  }
+  
+  /* === Peripheral Layout === */
+  .peripheral-control {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(2, auto);
+    gap: 10px 20px;
+    font-size: 14px;
+  }
+  
+  .peripheral-control > .dome-block    { grid-column: 1; grid-row: 1; }
+  .peripheral-control > .nstep-block   { grid-column: 1; grid-row: 2; }
+  .peripheral-control > .etalon1-block { grid-column: 2; grid-row: 1; }
+  .peripheral-control > .etalon2-block { grid-column: 2; grid-row: 2; }
+
+  
+  .dome-block,
+  .nstep-block,
+  .etalon-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .peripheral-control h4,
+  .peripheral-control label {
+    font-size: 15px;
+    font-weight: bold;
+    color: #222;
+    margin: 0;
+  }
+  
+  .peripheral-control p {
+    font-size: 14px;
+    margin: 0;
+  }
+  
+  .dome-position {
+    font-weight: bold;
+    font-size: 14px;
+    padding: 3px 8px;
+    background: #eaeaea;
+    border-radius: 4px;
+  }
+  
+  .dome-open { color: green; }
+  .dome-closed { color: red; }  

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Automated Solar Telescope Control Panel</title>
+  <link rel="stylesheet" href="static/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <!-- Banner -->
+    <header class="banner">
+      <img src="static/banner.png" alt="Automated Solar Telescope Banner" />
+    </header>
+
+    <!-- Science Camera -->
+    <section class="science-cam card">
+      <h3>Science Camera</h3>
+      <iframe src="http://192.168.1.160:6080/vnc.html" class="iframe-border"></iframe>
+    </section>
+
+    <!-- Dome Camera -->
+    <section class="dome-cam card">
+      <h3>Dome Camera</h3>
+      <img src="http://192.168.1.160:8081/0/stream" alt="Dome View" class="cam-stream" />
+    </section>
+
+    <!-- Server Control -->
+    <section class="server-control card">
+      <h3>INDIGO Server Control</h3>
+      <p>Connected on <span id="server-ip">IP-Pending</span></p>
+      <div class="button-group">
+        <button id="start-server">Start Server</button>
+        <button id="kill-server">Kill Server</button>
+      </div>
+      <div class="log-output">
+        <p>INDIGO server logging...</p>
+      </div>
+    </section>
+
+    <!-- Solar & Weather -->
+    <section class="calculations card">
+      <h3>Solar & Weather Forecast</h3>
+
+      <!-- Solar Position -->
+      <div class="solar-info">
+        <h4>Solar Position</h4>
+        <div class="row">
+          <span>Last Solved:</span> <strong id="sun_time">--</strong>
+        </div>
+        <div class="row">
+          <span>Altitude:</span> <strong id="solar_alt">--</strong>
+          <span>Azimuth:</span> <strong id="solar_az">--</strong>
+        </div>
+        <div class="row">
+          <span>Sunrise:</span> <strong id="sunrise">--</strong>
+          <span>Meridian:</span> <strong id="solar_noon">--</strong>
+          <span>Sunset:</span> <strong id="sunset">--</strong>
+        </div>
+      </div>
+
+      <!-- Weather Info -->
+      <div class="weather-info">
+        <h4>Weather @ Chapel Hill, NC</h4>
+        <div class="row">
+          <span>Last Checked:</span> <strong id="last_checked">--</strong>
+        </div>
+        <div class="row">
+          <span>Condition:</span> <strong id="condition">--</strong>
+          <span>Temperature:</span> <strong id="temperature">--</strong> °C
+        </div>
+        <div class="row">
+          <span>Wind:</span> <strong id="wind">--</strong> km/h
+        </div>
+      </div>
+    </section>
+
+    <!-- Mount Control-->
+    <section class="mount-control card">
+        <h3>Mount Control</h3>
+        <div class="coord-row">
+          <p>RA: <strong id="ra-placeholder">00:00:00.00</strong></p>
+          <p>DEC: <strong id="dec-placeholder">00:00:00.00</strong></p>
+        </div>
+      
+        <label for="slew-rate">Slew Rate</label>
+        <select id="slew-rate">
+          <option value="solar">Solar</option>
+          <option value="slow">Slow</option>
+          <option value="fast">Fast</option>
+        </select>
+      
+        <div class="dpad">
+          <button id="slew-west">W</button>
+          <div>
+            <button id="slew-north">N</button>
+            <button id="stop-mount" class="stop">STOP</button>
+            <button id="slew-south">S</button>
+          </div>
+          <button id="slew-east">E</button>
+        </div>
+    </section>
+
+    <!-- Peripheral Controls-->
+    <section class="peripheral-control card">
+        <h3>Peripheral Control</h3>
+
+        <!-- Dome -->
+        <div class="dome-block">
+            <h4>Dome Control</h4>
+            <p>Status: <span id="dome-position" class="dome-position">--</span></p>
+            <div class="dome-control-row">
+            <button id="open-dome">Open Dome</button>
+            <button id="close-dome">Close Dome</button>
+            </div>
+        </div>
+
+        <!-- nSTEP -->
+        <div class="nstep-block">
+            <h4>nSTEP Focuser</h4>
+            <p>Focuser Position: <span id="nstep-position">--</span></p>
+            <label for="nstep-rate">Step Rate (steps/sec): <span id="nstep-rate-value">50</span></label>
+            <input type="range" id="nstep-rate" min="0" max="100" value="50" />
+            <div class="nstep-control-row">
+            <button id="nstep-inward">IN</button>
+            <button id="nstep-stop" class="stop">STOP</button>
+            <button id="nstep-outward">OUT</button>
+            </div>
+        </div>
+
+        <!-- Etalon 1 -->
+        <div class="etalon1-block">
+            <h4>Etalon 1</h4>
+            <p>Current Position: <span id="etalon1-position">90</span></p>
+            <div class="etalon-control-row">
+            <input type="number" id="etalon1-input" min="0" max="180" value="90">
+            <input type="range" id="etalon1-slider" min="0" max="180" value="90">
+            </div>
+        </div>
+
+        <!-- Etalon 2 -->
+        <div class="etalon2-block">
+            <h4>Etalon 2</h4>
+            <p>Current Position: <span id="etalon2-position">90</span></p>
+            <div class="etalon-control-row">
+            <input type="number" id="etalon2-input" min="0" max="180" value="90">
+            <input type="range" id="etalon2-slider" min="0" max="180" value="90">
+            </div>
+        </div>
+    </section>
+    
+    <!-- File Status -->
+    <section class="file-status card">
+      <h3>File Status</h3>
+      <p>Status: <span id="file-status">Idle</span></p>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer style="text-align:center; padding: 10px; font-size: 14px; color: #666;">
+    <p>&copy; 2025 ASTControl. Built by Nathnael Kahassai.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="static/socket.io.min.js"></script>
+  <script src="static/ast.js"></script>
+</body>
+</html>

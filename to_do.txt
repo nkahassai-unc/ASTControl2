@@ -1,0 +1,288 @@
+Current ASTControl To Do (3.5):
+
+ASTControl To Do (3.5) — Live Tasks
+
+INDIGO + Mount:
+- Finalize JSON client thread safety and shared instance
+- Test and debug startup_mount, track_sun, and shutdown_mount scripts
+- Add live RA/DEC readout to Mount Control tab
+- Move mount programming buttons from Server Control to Mount panel
+- Ensure mount sync and solar tracking flow is stable
+
+nSTEP Focuser:
+- Wire up direction buttons in the interface
+- Add feedback display for position or motion state
+- Confirm commands reach INDIGO or fallback handler
+
+Arduino (Dome + Etalons):
+- Confirm smooth control from GUI for all 3 servos
+- Stabilize Arduino serial/tcp comms
+- Add polling for live position updates
+- Display dome/etalon state text near controls
+
+FireCapture:
+- Confirm SSH startup works
+- Confirm 1 fps preview via proxy image stream
+- Add "Trigger Capture" button to call autoclicker script
+- Confirm Samba file sharing to local machine
+
+File Handler:
+- Copying logic, file status, and UI table confirmed
+- Fully test detect → copy → delete loop
+- Add file logging or session summary later
+- Plan AS4 + ImPPG hooks in Stage 2
+
+Cameras:
+- Dome Cam via Motion server confirmed
+- Science Cam via FireCapture confirmed
+- Optional: frame capture toggle logic or LED indicator
+
+Automation Panel (Stage 1.5 Planning):
+- Add automation tab with:
+  - Manual buttons for mount scripts (startup, track, shutdown)
+  - Placeholders for time-based or weather triggers
+  - Optional: persistent JSON logging for session tracking
+
+Systems Monitor (Stage 2 Planning):
+- Add Systems Monitor tab with:
+  - Heartbeat/status for INDIGO, Arduino, FireCapture, file handler
+  - Optional: error tracking, log flush, healthcheck summary
+
+Hardware Setup:
+- Clear room and set up mount for testing
+- Continue wiring cleanup and Arduino enclosure work
+
+*-*-*-*-*-*-*-
+DEPRECATED
+INDIGO:
+- JSON Client
+- nSTEP: wire buttons, add feedback (INDIGO or fallback)
+- Add scripting agent + RA/DEC live to GUI
+- Finalize mount scripts (startup_, track_, shutdown_)
+- UI: dome + etalon sliders/buttons + state text
+
+Peripheral:
+- Arduino dome/etalon: bind control + pos readout
+
+Pi SD Card Setup:
+- Remote: VNC/SSH check, prep systemd autostart
+- Dome cam + science cam feeds live
+- File handler: reconnect, show file status, prep AS4 pipe
+- FireCapture: test SSH run, add 1fps preview, cleanup loop
+
+Automation 1.0:
+- Weather → dome auto-close + warning display
+
+
+*-*-*-*-*-*-*-
+DEPRECATED
+3.0 To Do:
+    - Weather & Solar consolidated
+    - Servo control integration
+    
+    Next:
+    - VNC firecapture
+    - File transfer monitoring
+
+*-*-*-*-*-*-*-
+DEPRECATED
+UNC Summer Install Priorities:
+    - Network setup (DHCP, VNC)
+    - Dome Camera ability (Motion)
+    - File Transfer Protocol (Samba)
+    - Arduino Remote Control (Python)
+    - Dome Motor (Mechanical)
+    - Scripts Later Remotely
+
+
+Next test: Run control panel. Local testing.
+    - test indigo server connection (Reconnect)
+
+    - ensure solar calculations works (Yes)
+
+    - test webcam (Yes, motionplus server works)
+
+    - test mount control works (Next, test with simulator)
+        # defunct with INDIGO control panel
+    
+    new: 
+
+    - add scripting agent ability, return scripting module.
+        - startup_mount
+        - track_sun
+        - shutdown_mount
+
+    - test nstep works (Simple, finish wiring buttons; via SSH prop_tool, or JS INDIGO API)
+
+    - test firecapture works (Reconnect, SSH run_fc.py)
+    - test firecpture previews (X screenshot previews from PC)
+    - test file mover & reports (next)
+
+
+After test:
+    - work on Automation: scripting agent and panel
+    - work on arduino, dome & etalons: arduino ssh server
+
+*-*-*-*-*-*-*-
+AST Frontend & Backend Architecture
+
+Web Design & Layout:
+
+    -- Control & Feedback -- # Mount # Server
+    Server Module:
+        - Connect & Disconnect from Server
+        - Scrollable logging (indigo/server)
+
+    Mount Control Module:
+        - Live RA/DEC display.
+        - D-pad for slewing (N, S, E, W) with speed adjustment.
+        - Toggle slew rates.
+        - Toggle tracking modes (Solar).
+
+    --Information-- # Utilities
+    Solar Calculations Module:
+        - Realtime Sun’s position, Sunrise, Sunset
+        - Display Meridian crossing.
+
+    Weather Module (OpenWeatherMap API):
+        - Periodic weather data (temperature, humidity, wind).
+        - Safety warnings for unfavorable conditions.
+        
+    --Control & Feedback-- # Peripherals
+    Dome & Etalon Control Module (arduino):
+        - Open/Close dome button (servo control).
+        - Weather signalling integration for dome.
+
+        - Inward / Outward buttons for two servos.
+        - Speed control slider for fine adjustments.
+        - Relative position display.
+    
+    nSTEP Focuser Control Module:
+        - Speed Control: Slider for adjusting speed.
+        - Direction Control: Buttons for inward and outward movement.
+        - Position Feedback: Display current position (e.g., steps or absolute position).
+        - Abort Motion: Button to stop motion immediately.
+    
+    --Information-- # Utilities
+    Dome Cam:
+        - Periodic (~ 1 FPS) camera feed from Dome webcam.
+
+    Science Cam:
+        - Periodic (1 FPS) camera feed from FireCapture.
+
+    File Status Module (Future):
+        - File monitoring for **`.avi** science camera files.
+        - Status of file transfer/processing.
+
+---------
+Mechanical:
+
+    - (Resolved) diagnose servo jitter, added ferrite coils 
+    - (Utility Box) 3D print box embedding coils & GPIO & arduino
+    - (Deprecated) wire tilt sensor extension onto dome 
+    - (Resolved) 3D print holder for webcam
+
+*-*-*-*-*-*-*-
+DEPRECATED
+
+Automation & Backend Architecture:
+
+    server:
+        - start_server.py
+        - kill_server.py
+        # ensure API is being fed correctly
+        # check threading memory
+        # asynchronous architecture
+        ---
+        - solved with server_con.py (2.6)
+
+    mount:
+        - startup_mount.py
+        - track_sun.py
+        - shutdown_mount.py
+        - calculations.py
+        # startup mount ensure correct sync
+        # track_sun runs nominally, startup & shutdown one time
+        # incoporate arduino dome signalling
+        ---
+        - new mount_con.py (TBD)
+
+    camera:
+        - run_fc.py
+        - run_fc.sh
+        # run firecapture and batch script in fc
+        # screenshot periodic from firecapture & feed into webserver
+        # delete screenshots after 50, (option for 1 fps to 1/10, 1/30, 1/60)
+        ---
+        - new firecapture handler .py (TBD)
+
+    peripherals:
+        - etalon_control.py
+        - nstep_control.py
+        - weather_monitor.py
+        # javascript buttons to webserver
+        ---
+        - solved and upgradable
+
+    files & processing:
+        - file_handler.py
+        # resestablish FTP connection (Q://)
+
+        - feed files into AS4! and IMPPG (TBD)
+
+    present:
+        - TBD feed files into output gif loops 
+        - hosted to other page on web server
+
+*-*-*-*-*-*-*-
+AST Control To Do (1.X)
+Web Design Critiques:
+- connect weather_monitor with track_sun (soon)
+
+- finish file_handler
+    - ensure new files go to preprocessing folder
+    - tbd
+
+- investigate startup_mount sync 
+    - home position
+    - shut down procedure to start up consistent
+    - re: startup_mount and new home
+
+- print statements at boot & shut down
+    - where? redundant
+
+- static terminal boxes, too wide
+
+*-*-*-*-*-*-
+AST Control To Do (1.5.6)
+
+- investigate sync in startup_mount
+    - fix home coordinates formatting !
+    - fix sync method & when to turn off tracking
+    
+- investigate tracking in track_sun
+    - fix sun coordinates formatting
+    - intial_slew()
+    - update_sun()
+    
+- investigate sync & position in shutdown_mount
+    - fix home coordinates formatting
+
+- fine report weather_monitor
+    - later
+
+--------
+Signalling:
+- connect weather_monitor signalling to track_sun
+    - define, redundant?
+
+- feed webcam data into frame. 
+- feed firecapture screen output into another frame.
+
+- update nstep controls 
+    - to what? nstep revamped to buttons to javascript
+
+- update etalon controls
+    - to what? arduino bindings to python?
+    - arduino host on python
+    - servo A and servo B, numerical increment

@@ -1,0 +1,57 @@
+#include <Servo.h>
+
+Servo domeServo;
+Servo etalon1Servo;
+Servo etalon2Servo;
+
+// Set pin numbers
+const int DOME_PIN = 3;
+const int ETALON1_PIN = 5;
+const int ETALON2_PIN = 6;
+
+// Store positions (0–180)
+int domePos = 90;
+int etalon1Pos = 90;
+int etalon2Pos = 90;
+
+void setup() {
+  Serial.begin(9600);
+
+  domeServo.attach(DOME_PIN);
+  etalon1Servo.attach(ETALON1_PIN);
+  etalon2Servo.attach(ETALON2_PIN);
+
+  // Set to neutral
+  domeServo.write(domePos);
+  etalon1Servo.write(etalon1Pos);
+  etalon2Servo.write(etalon2Pos);
+}
+
+void loop() {
+  if (Serial.available()) {
+    String command = Serial.readStringUntil('\n');
+    command.trim();
+
+    if (command.startsWith("DOME:")) {
+      int value = command.substring(5).toInt();
+      domePos = constrain(value, 0, 180);
+      domeServo.write(domePos);
+      Serial.println("DOME OK");
+
+    } else if (command.startsWith("ETALON1:")) {
+      int value = command.substring(8).toInt();
+      etalon1Pos = constrain(value, 0, 180);
+      etalon1Servo.write(etalon1Pos);
+      Serial.println("ETALON1 OK");
+
+    } else if (command.startsWith("ETALON2:")) {
+      int value = command.substring(8).toInt();
+      etalon2Pos = constrain(value, 0, 180);
+      etalon2Servo.write(etalon2Pos);
+      Serial.println("ETALON2 OK");
+      
+    } else {
+      Serial.println("UNKNOWN CMD");
+    }
+  }
+}

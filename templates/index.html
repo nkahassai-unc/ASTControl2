@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AST Control Panel</title>
+  <link rel="icon" type="image/png" href="static/ast_fav.png">
+  <link href="static/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans p-6">
+  <div class="grid grid-cols-12 gap-4 max-w-[1600px] mx-auto auto-rows-min">
+
+    <!-- Banner -->
+    <header class="col-span-10 flex items-center">
+      <img src="static/banner.png" alt="Automated Solar Telescope Banner" style="height: 45px !important" class="w-auto object-contain" />
+    </header>
+
+    <!-- Top Row: Dome Cam / Dome Cam / Mount Control -->
+    <section class="col-span-5 bg-gray-300 p-4 rounded shadow flex flex-col gap-1">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold">Dome Camera</h2>
+        <div class="flex items-center gap-2">
+          <span id="dome-status-indicator" class="w-3 h-3 rounded-full bg-red-500"></span>
+          <span class="text-sm font-medium text-gray-700">Connection</span>
+        </div>
+      </div>
+      <img id="dome-cam" data-pi-ip="{{ pi_ip }}" src="http://{{ pi_ip }}:8081/0/stream" alt="Dome View" class="w-full h-[500px] object-cover rounded border-2 border-gray-600" />
+    </section>    
+    
+    <section class="col-span-4 bg-gray-300 p-4 rounded shadow flex flex-col gap-1">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold">Science Camera</h2>
+        <div class="flex items-center gap-2">
+          <span id="fc-status-indicator" class="w-3 h-3 rounded-full bg-red-500"></span>
+          <span class="text-sm font-medium text-gray-700">Connection</span>
+        </div>
+      </div>
+      <img id="fc-preview" data-pi-ip="{{ pi_ip }}" src="/static/no_preview.png" alt="FireCapture Preview" class="mx-auto max-w-[250px] h-auto object-contain border-2 border-gray-600 rounded transition-all duration-300" />
+      <div class="flex gap-2 mt-2">
+        <button onclick="startFcPreview()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded shadow">Start Preview</button>
+        <button onclick="stopFcPreview()" class="bg-yellow-500 hover:bg-red-600 text-white px-4 py-1 rounded shadow">Stop Preview</button>
+        <button onclick="triggerFcCapture()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded shadow">Capture</button>
+      </div>
+    </section>
+
+    <section class="col-span-3 bg-purple-100 p-4 rounded shadow flex flex-col gap-3">
+      <h2 class="text-lg font-semibold">Mount Control</h2>
+      <div class="flex justify-between bg-gray-100 p-0 rounded text-sm">
+        <p><span class="font-medium font-bold">Last Update:</span> <span id="last_sun_time" class="font-semibold">--</span></p>
+        <p><span class="font-medium font-bold">Current Time:</span> <span id="current_time" class="font-semibold">--</span></p>
+      </div>
+      <div class="flex justify-between bg-yellow-100 p-0 rounded text-sm">
+        <p><span class="font-bold">SUN RA:</span> <span id="ra-solar" class="font-semibold">00:00:00.00</span></p>
+        <p><span class="font-bold">SUN DEC:</span> <span id="dec-solar" class="font-semibold">00:00:00.00</span></p>
+      </div>
+      <div class="flex justify-between bg-blue-100 p-0 rounded text-sm">
+        <p><span class="font-bold">PMC RA:</span> <span id="ra-mount" class="font-semibold">00:00:00.00</span></p>
+        <p><span class="font-bold">PMC DEC:</span> <span id="dec-mount" class="font-semibold">00:00:00.00</span></p>
+      </div>
+      <div class="flex items-center font-large font-bold justify-between text-sm">
+        <p>Status: <span id="mount-status" class="font-large font-bold text-gray-700">--</span></p>
+      </div>
+      <div class="flex gap-2 justify-center font-large font-bold">
+        <button id="track-sun" class="bg-yellow-500 text-white px-3 py-1 rounded text-sm font-semibold">Track Sun</button>
+        <button id="park-mount" class="bg-red-600 text-white px-3 py-1 rounded text-sm font-semibold">Park Mount</button>
+        <button id="unpark-mount" class="bg-green-600 text-white px-3 py-1 rounded text-sm font-semibold">Unpark Mount</button>
+      </div>
+      <div class="font-medium font-bold">
+      <label for="slew-rate" >Slew Rate</label>
+      <select id="slew-rate" class="border rounded p-1">
+        <option value="solar">Solar</option>
+        <option value="slow">Slow</option>
+        <option value="fast">Fast</option>
+      </select>
+      </div>
+      <div class="grid grid-cols-3 grid-rows-3 gap-1 justify-items-center mt-2">
+        <div></div><button id="slew-north" class="bg-gray-600 text-white w-12 h-12 text-xs font-bold rounded">N</button><div></div>
+        <button id="slew-west" class="bg-gray-600 text-white w-12 h-12 text-xs font-bold rounded">W</button>
+        <button id="stop-mount" class="bg-red-600 text-white w-12 h-12 text-xs font-bold rounded">STOP</button>
+        <button id="slew-east" class="bg-gray-600 text-white w-12 h-12 text-xs font-bold rounded">E</button>
+        <div></div><button id="slew-south" class="bg-gray-600 text-white w-12 h-12 text-xs font-bold rounded">S</button><div></div>
+      </div>
+    </section>
+
+    <!-- Bottom Row: INDIGO Server Control / Solar & Weather Forecast / Peripheral Control -->
+    <section class="col-span-6 bg-red-200 p-4 rounded shadow flex flex-col gap-3">
+      <h2 class="text-lg font-semibold">INDIGO Server Control</h2>
+
+      <div class="flex items-center justify-between text-sm">
+        <p>Connected on: <strong id="server-ip">-</strong></p>
+        <p>Status: <span id="indigo-status" class="font-semibold text-red-700">● Offline</span></p>
+      </div>
+
+      <div class="flex gap-2">
+        <button id="start-server" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded">Start Server</button>
+        <button id="kill-server" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">Kill Server</button>
+        <button id="server-manager" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">Server Manager</button>
+      </div>
+
+      <div id="server-log"
+          class="bg-white p-2 rounded border font-mono whitespace-pre-wrap leading-tight overflow-y-scroll text-xs"
+          style="height: 300px; overflow-x: hidden;">
+        <p>INDIGO server logging...</p>
+      </div>
+    </section>
+
+    <section class="col-span-3 bg-yellow-100 p-4 rounded shadow flex flex-col gap-3">
+      <h2 class="text-lg font-semibold text-black-800">Solar & Weather Forecast</h2>
+
+      <!-- Solar Path Canvas -->
+      <div class="w-full max-w-xl mx-auto bg-white border border-gray-300 rounded-lg shadow p-3">
+        <canvas id="solar-canvas" class="w-full aspect-[2/1]"></canvas>
+        <div id="solar-tooltip" style="
+          position: absolute;
+          background: rgba(255,255,255,0.9);
+          padding: 4px 8px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          font-size: 12px;
+          pointer-events: none;
+          display: none;
+          z-index: 999;
+        "></div>
+      </div>
+
+      <!-- Solar Info -->
+      <div>
+        <h3 class="font-semibold text-gray-700 mb-1 mt-2">Solar Position</h3>
+        <div class="text-sm text-gray-800">
+          Last Update: <strong id="sun_time">--</strong>
+        </div>
+        <div class="text-sm text-gray-800">
+          Altitude: <strong id="solar_alt">--</strong> |
+          Azimuth: <strong id="solar_az">--</strong>
+        </div>
+        <div class="text-sm text-gray-800">
+          Sunrise: <strong id="sunrise">--</strong> |
+          Noon: <strong id="solar_noon">--</strong> |
+          Sunset: <strong id="sunset">--</strong>
+        </div>
+      </div>
+
+      <!-- Weather Info -->
+      <div>
+        <h3 class="font-semibold text-gray-700 mb-1 mt-2">
+          Weather @ Chapel Hill, NC
+        </h3>
+        <div class="text-sm text-gray-800">
+          Last Update: <strong id="last_checked">--</strong>
+        </div>
+        <div class="text-sm text-gray-800">
+          Condition: <strong id="condition">--</strong> |
+          Temp: <strong id="temperature">--</strong>
+        </div>
+        <div class="text-sm text-gray-800">
+          Wind: <strong id="wind">--</strong> |
+          Rain Chance: <strong id="precip">--</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="col-span-3 bg-sky-100 p-4 rounded shadow space-y-4">
+      <h2 class="text-lg font-semibold">Peripheral Control</h2>
+      <div class="flex items-center space-x-2 mt-2">
+        <span class="text-sm font-medium text-gray-700">Arduino:</span>
+        <div id="arduinoStatusDot" class="w-3 h-3 rounded-full bg-gray-400 animate-pulse"></div>
+        <span id="arduinoStatusText" class="text-sm text-gray-600">Checking...</span>
+      </div>
+      <div>
+        <h3 class="text-large font-semibold font-large text-gray-700 mb-1">Dome Control</h3>
+        <span id="domeStatus" class="ml-4 text-small font-semibold text-gray-700">Status: UNKNOWN</span>
+        <div class="flex items-center space-x-4">
+          <button onclick="setDome('open')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded">Open</button>
+          <button onclick="setDome('close')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded">Close</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-large font-semibold text-gray-700 mb-1">Ultrasonic Sensor</h3>
+        <div class="flex items-center space-x-4">
+          <span class="text-medium font-medium">Distance:</span>
+          <span id="ultrasonicDistance" class="text-medium font-semibold text-gray-800">— cm</span>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-large font-semibold font-large text-gray-700 mb-1">Etalon Control</h3>
+        <div class="flex flex-col space-y-3">
+          <div class="flex items-center space-x-4">
+            <label for="etalon1Slider" class="w-20 text-medium font-medium">Etalon 1:</label>
+            <input type="range" id="etalon1Slider" min="0" max="180" value="90"
+                  class="w-250 h-3 appearance-none bg-gray-300 rounded-none focus:outline-none">
+            <span id="etalon1Value" class="text-medium">90°</span>
+          </div>
+          <div class="flex items-center space-x-4">
+            <label for="etalon2Slider" class="w-20 text-medium font-medium">Etalon 2:</label>
+            <input type="range" id="etalon2Slider" min="0" max="180" value="90"
+                  class="w-250 h-3 appearance-none bg-gray-300 rounded-none focus:outline-none">
+            <span id="etalon2Value" class="text-medium">90°</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-large font-semibold text-gray-700 mb-1">nSTEP Focuser</h3>
+        <div class="flex items-center space-x-4 mb-2">
+          <button onclick="nstepMove('in')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded">In</button>
+          <button onclick="nstepMove('stop')" class="bg-red-500 hover:bg-gray-600 text-white px-4 py-1 rounded">STOP</button>
+          <button onclick="nstepMove('out')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded">Out</button>
+        </div>
+        <div class="flex items-center ml-4 space-x-6 text-sm text-gray-700">
+          <div>Set Position: <span id="nstepSetPosition">—</span></div>
+          <div>Current Position: <span id="nstepCurrentPosition">—</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- File Table -->
+    <section class="col-span-6 bg-purple-100 p-4 rounded shadow">
+      <h2 class="text-lg font-semibold">File Status</h2>
+        <div class="flex items-center gap-2">
+          <p>Status: <span id="file-status">--</span></p>
+        </div>
+      <div class="overflow-x-auto mt-4">
+        <table id="file-table" class="min-w-full text-sm text-left text-gray-800">
+          <thead class="bg-purple-200 text-gray-900">
+            <tr>
+              <th class="px-4 py-2">File Name</th>
+              <th class="px-4 py-2">Size</th>
+              <th class="px-4 py-2">Last Modified</th>
+            </tr>
+          </thead>
+          <tbody id="file-table-body" class="bg-purple-50">
+            <!-- Rows will be inserted here via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="col-span-6 bg-gray-200 rounded shadow p-4 flex items-center justify-center text-sm text-gray-500 italic">
+      Panel Placeholder
+    </section>
+  </div>
+
+  <footer class="text-center mt-4 text-sm text-gray-600">
+    <p>&copy; 2025 Automated Solar Telescope. Built by Nathnael Kahassai.</p>
+  </footer>
+
+  <script src="static/socket.io.min.js"></script>
+  <script src="static/ast.js"></script>
+</body>
+</html>
