@@ -1,4 +1,4 @@
-# Automated Solar Telescope Control (ASTControl)
+# Automated Solar Telescope Control (ASTControl) II
 
 Automated Solar Telescope Control is a modular, browser-based control system for managing an automated solar telescope. It centralizes mount control, weather and solar tracking, dome and etalon servo management, file transfer automation, and real-time status monitoring into one web interface.
 
