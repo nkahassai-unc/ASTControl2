@@ -663,3 +663,41 @@ fetch("/get_file_list")
 socket.on("file_list_update", (files) => {
   renderFileList(files);
 });
+
+// === SECTION: AUTOGUIDER MODULE ===
+
+// === Autoguider UI wiring ===
+const agImg   = document.getElementById("guiding-preview");
+const agFPS   = document.getElementById("guiding-fps");
+const agLock  = document.getElementById("guiding-lock");
+const agDX    = document.getElementById("guiding-dx");
+const agDY    = document.getElementById("guiding-dy");
+const agR     = document.getElementById("guiding-r");
+const agStat  = document.getElementById("autoguider-status");
+
+document.getElementById("autoguider-on").addEventListener("click", () => {
+  socket.emit("autoguider_start");
+});
+document.getElementById("autoguider-off").addEventListener("click", () => {
+  socket.emit("autoguider_stop");
+});
+
+// overlay image pushed from backend as data URL
+socket.on("guiding_overlay", (dataUrl) => {
+  if (agImg) agImg.src = dataUrl;  // data:image/jpeg;base64,...
+});
+
+// status/metrics
+socket.on("guiding_status", (s) => {
+  if (agStat) agStat.textContent = s?.status ?? "--";
+  if (agFPS)  agFPS.textContent  = s?.fps ?? "--";
+  if (agLock) agLock.textContent = s?.locked ? "YES" : "NO";
+  if (agDX)   agDX.textContent   = s?.dx ?? "--";
+  if (agDY)   agDY.textContent   = s?.dy ?? "--";
+  if (agR)    agR.textContent    = s?.r  ?? "--";
+});
+
+// pull an initial status after connect
+socket.on("connect", () => {
+  socket.emit("autoguider_get_status");
+});

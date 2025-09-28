@@ -15,7 +15,7 @@ Originally developed for solar instrumentation at UNC-Chapel Hill, ASTControl no
 - Real-time RA/DEC feedback and device state display
 - Arduino-based servo control for dome and etalon positioning
 - File handler for auto-transferring `.avi` videos from Raspberry Pi to PC
-- Optional FireCapture preview integration and script support
+- FireCapture preview integration and capture script support
 
 ---
 
@@ -34,7 +34,7 @@ Originally developed for solar instrumentation at UNC-Chapel Hill, ASTControl no
 **Remote Devices:**
 - Raspberry Pi runs the INDIGO server and serial handler for Arduino
 - Arduino controls servo logic for dome and etalon
-- FireCapture runs on the Pi or a connected Windows box for imaging
+- FireCapture runs on the Pi for imaging, preview and capture logic control from PC / Web Server
 
 ---
 
@@ -76,7 +76,7 @@ The control panel provides:
 
 - Slew, park, and sun-tracking buttons
 
-- Dome open/close and etalon position control
+- Dome open/close and etalon servo position control
 
 - nSTEP focuser control
 
@@ -87,7 +87,7 @@ All functionality is exposed through the main web interface. Optional features l
 ## Notes
 This system assumes a stable Ethernet or LAN connection between the PC and Raspberry Pi.
 
-All device communication is event-driven for responsiveness.
+// All device communication is event-driven for responsiveness.
 
 Future updates intended to include automation routines and persistent data logging.
 

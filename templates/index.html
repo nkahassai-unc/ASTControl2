@@ -234,8 +234,33 @@
       </div>
     </section>
 
-    <section class="col-span-6 bg-gray-200 rounded shadow p-4 flex items-center justify-center text-sm text-gray-500 italic">
-      Panel Placeholder
+    <!-- Autoguider Module -->
+    <section class="col-span-6 bg-sky-100 p-4 rounded shadow">
+      <h2 class="text-lg font-semibold">Autoguider Module</h2>
+      <div class="flex items-center gap-2">
+          <p>Status: <span id="autoguider-status">--</span></p>
+        </div>
+      <div class="flex gap-2 gap-y-1">
+        <button id="autoguider-on"  class="px-3 py-1 rounded bg-green-600 text-white text-sm">Start</button>
+        <button id="autoguider-off" class="px-3 py-1 rounded bg-red-600 text-white text-sm">Stop</button>
+      </div>
+
+    <!-- Live preview with overlays drawn server-side -->
+    <div class="bg-gray-100 rounded p-2 flex items-center justify-center">
+      <img id="guiding-preview"
+          alt="Guiding preview"
+          width="480" height="270"
+          class="max-w-full max-h-72 object-contain select-none"/>
+    </div>
+
+    <!-- Metrics row -->
+    <div class="text-sm text-gray-800 flex flex-wrap gap-x-6 gap-y-1 mt-1" id="guiding-metrics">
+      <span>FPS: <strong id="guiding-fps">--</strong></span>
+      <span>Lock: <strong id="guiding-lock">--</strong></span>
+      <span>dx: <strong id="guiding-dx">--</strong></span>
+      <span>dy: <strong id="guiding-dy">--</strong></span>
+      <span>r: <strong id="guiding-r">--</strong></span>
+    </div>
     </section>
   </div>
 

@@ -23,9 +23,9 @@ from modules.server_module import IndigoRemoteServer
 from modules.server_module import indigo_client, start_indigo_client
 from utilities.logger import emit_log, set_socketio as set_log_socketio, get_log_history
 
-
 from modules.nstep_module import NStepFocuser, set_socketio as set_nstep_socketio
 from modules.mount_module import MountControl, set_socketio as set_mount_socketio
+from modules.guide_module import AutoGuider, set_socketio as set_guider_socketio
 from modules import arduino_module
 
 
@@ -43,6 +43,7 @@ indigo = IndigoRemoteServer(RASPBERRY_PI_IP, SSH_USERNAME, SSH_PASSWORD)
 
 mount = MountControl(indigo_client=indigo_client)
 nstep = NStepFocuser(indigo_client=indigo_client)
+guider = AutoGuider(mount)
 
 file_module.set_socketio_instance(socketio)
 
@@ -54,6 +55,7 @@ except Exception as e:
 
 # Attach shared socket
 set_nstep_socketio(socketio)
+set_guider_socketio(socketio)
 set_mount_socketio(socketio)
 arduino_module.set_socketio(socketio)
 
@@ -179,6 +181,17 @@ def handle_park_mount():
 @socketio.on("unpark_mount")
 def handle_unpark_mount():
     mount.unpark()
+
+# === Autoguider Handlers ===
+@socketio.on("autoguider_start")
+def autoguider_start(): guider.start()
+
+@socketio.on("autoguider_stop")
+def autoguider_stop(): guider.stop()
+
+@socketio.on("autoguider_get_status")
+def autoguider_get_status(): socketio.emit("guiding_status", guider.get_status())
+
 
 # === nSTEP Focuser Handlers ===
 @socketio.on("nstep_move")
